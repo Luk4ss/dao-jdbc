@@ -26,10 +26,15 @@ public class Program2 {
 		Department dep = depDao.findById(2);
 		System.out.println(dep);
 		
-		System.out.println("\n==== TEST 3: Department insert ====");
+	/*	System.out.println("\n==== TEST 3: Department insert ====");
 		Department depart = new Department(null, "Videogames");
 		depDao.insert(depart);
-		System.out.println("Department inserted!");
+		System.out.println("Department inserted!"); */
+		
+		System.out.println("\n==== TEST 3: Department update ====");
+		dep.setName("Eletronics and Electrical Equipament");
+		depDao.update(dep);
+		System.out.println("Department updated!"); 
 		
 
 	}

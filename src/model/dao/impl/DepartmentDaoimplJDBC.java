@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -22,7 +24,31 @@ public class DepartmentDaoimplJDBC implements DepartmentDao {
 	
 	@Override
 	public void insert(Department depart) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		
+		try {
+			st = conn.prepareStatement("INSERT INTO department (Name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+			st.setString(1, depart.getName());
+			
+			int rowsAffected = st.executeUpdate();
+			
+			if(rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					depart.setId(id);
+				}
+				DB.closeResultSet(rs);
+			}else {
+				throw new DbException("Error! No rows affected!");
+			}
+			
+		} catch (SQLException e) {
+			
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+		}
 		
 	}
 
@@ -71,8 +97,28 @@ public class DepartmentDaoimplJDBC implements DepartmentDao {
 
 	@Override
 	public List<Department> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+	
+		
+		try {
+			st = conn.prepareStatement("SELECT * from department");
+			rs = st.executeQuery();
+			List<Department> departmentList = new ArrayList<>();
+			while(rs.next()) {
+				Department dep = instantiateDepartment(rs);
+				departmentList.add(dep);
+			}
+			
+			return departmentList;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeResultSet(rs);
+			DB.closeStatement(st);
+		}
+		
 	}
 	
 	private Department instantiateDepartment(ResultSet rs) throws SQLException {
